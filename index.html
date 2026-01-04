@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>山形名物＊ままだま焼き☆ by とうかいりん - クックマッド</title>
+    <style>
+        /* ===== クックパッド風スタイル（修正完了版） ===== */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+            color: #333;
+            font-family: "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", "メイリオ", Meiryo, "ＭＳ Ｐゴシック", sans-serif;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+        a { text-decoration: none; color: #0066cc; }
+        ul, ol { margin: 0; padding: 0; list-style: none; }
+        h1, h2, h3, p { margin: 0; }
+
+        /* ヘッダー */
+        .cookpad-header {
+            background-color: #fff;
+            border-bottom: 1px solid #ddd;
+            padding: 10px 0;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .cookpad-logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff7f00;
+            letter-spacing: -1px;
+            font-family: arial, sans-serif;
+        }
+
+        /* メインコンテナ */
+        .container {
+            width: 960px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+        }
+
+        /* レシピヘッダー */
+        .recipe-header {
+            margin-bottom: 15px;
+            border-bottom: 1px dotted #ccc;
+            padding-bottom: 15px;
+        }
+        h1.recipe-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #8fc31f;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+        .recipe-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+        .recipe-author {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        /* 投稿者名（トリガー部分） */
+        .author-name {
+            color: #0066cc;
+            font-weight: bold;
+            position: relative; /* ポップアップの基準位置 */
+            cursor: pointer;
+        }
+
+        /* ★修正: プロフィールカードの「外箱」 */
+        .author-popup-wrapper {
+            display: none;        /* 最初は隠す */
+            position: absolute;   /* 絶対配置 */
+            top: 35px;            /* 文字の下 */
+            left: 50%;
+            transform: translateX(-50%); /* 左右中央揃え */
+            width: 260px;         /* カードの幅 */
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;   /* 角丸 */
+            z-index: 100;
+            /* 影をつけて浮き上がらせる（ツノも含めて影がつくfilterを使用） */
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2)); 
+            border: 1px solid #eee;
+            text-align: left;     /* テキストは左揃えに戻す */
+        }
+
+        /* ★修正: 吹き出しの「ツノ」 */
+        .author-popup-wrapper::before {
+            content: "";
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-style: solid;
+            border-width: 0 10px 10px 10px;
+            border-color: transparent transparent #fff transparent;
+        }
+
+        /* ★追加: カードの中身（レイアウト） */
+        .popup-inner {
+            display: flex;        /* 横並びにする */
+            align-items: center;  /* 上下中央揃え */
+        }
+
+        /* ★追加: アイコン画像 */
+        .popup-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid #ccc;
+            margin-right: 15px;   /* テキストとの間隔 */
+            flex-shrink: 0;       /* 画像が潰れないようにする */
+        }
+
+        /* ★追加: テキスト情報のデザイン */
+        .popup-text {
+            flex: 1;
+        }
+        .popup-username {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            line-height: 1.2;
+            margin-bottom: 4px;
+        }
+        .popup-user-rank {
+            font-size: 11px;
+            color: #d4af37; /* ゴールド */
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+        .popup-user-stats {
+            font-size: 11px;
+            color: #666;
+        }
+
+        /* ホバー時にカードを表示 */
+        .author-name:hover .author-popup-wrapper {
+            display: block;
+        }
+
+        /* シェアボタン */
+        .share-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        .btn {
+            padding: 4px 10px;
+            font-size: 11px;
+            color: white;
+            border-radius: 3px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-tw { background-color: #1da1f2; }
+        .btn-fb { background-color: #1877f2; }
+        .btn-line { background-color: #06c755; }
+        
+        /* レシピメインエリア */
+        .recipe-main-area {
+            display: flex;
+            margin-top: 20px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+        }
+        .recipe-image-placeholder {
+            width: 280px;
+            height: 280px;
+            background-color: #eee;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #aaa;
+            font-weight: bold;
+            font-size: 18px;
+            margin-right: 20px;
+            border: 1px solid #ddd;
+            flex-shrink: 0;
+        }
+        .recipe-image-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .recipe-description {
+            flex: 1;
+        }
+        .description-text {
+            font-size: 15px;
+            margin-bottom: 20px;
+        }
+        .important-message {
+            font-weight: bold;
+            color: #ff7f00;
+        }
+
+        /* 材料セクション */
+        .ingredients-section {
+            margin-bottom: 40px;
+            clear: both;
+        }
+        h2.section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #8fc31f;
+            margin-bottom: 15px;
+            border-left: 5px solid #8fc31f;
+            padding-left: 10px;
+            line-height: 1.2;
+        }
+        .servings {
+            font-size: 12px;
+            color: #666;
+            font-weight: normal;
+            margin-left: 10px;
+        }
+        .ingredient-box {
+            background-color: #fbfbfb;
+            border: 1px solid #e5e5e5;
+            padding: 10px 20px;
+        }
+        .ingredient-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dotted #ccc;
+            font-size: 15px;
+        }
+        .ingredient-list li:last-child {
+            border-bottom: none;
+        }
+        .ingredient-amount {
+            color: #666;
+            font-weight: bold;
+        }
+
+        /* 作り方セクション */
+        .steps-section {
+            margin-bottom: 40px;
+        }
+        .step-list li {
+            margin-bottom: 25px;
+            display: flex;
+            align-items: flex-start;
+        }
+        .step-number {
+            background-color: #ff7f00;
+            color: #fff;
+            width: 32px;
+            height: 32px;
+            text-align: center;
+            line-height: 32px;
+            font-weight: bold;
+            border-radius: 3px;
+            margin-right: 15px;
+            flex-shrink: 0;
+            font-size: 16px;
+        }
+        .step-text {
+            flex: 1;
+            font-size: 15px;
+            line-height: 1.6;
+            padding-top: 4px;
+        }
+        .step-image {
+            width: 100px;
+            height: 75px;
+            background-color: #eee;
+            border: 1px solid #ddd;
+            margin-left: 15px;
+            flex-shrink: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #aaa;
+            font-size: 10px;
+        }
+        .step-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* === たべレポセクション === */
+        .taberepo-section {
+            margin-top: 50px;
+            border-top: 2px solid #8fc31f;
+            padding-top: 20px;
+            margin-bottom: 40px;
+        }
+        .taberepo-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            justify-content: space-between;
+        }
+        .taberepo-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        .taberepo-count {
+            background-color: #eee;
+            color: #666;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .taberepo-card {
+            width: 100%;
+            background-color: #fff;
+            border-bottom: 1px dotted #ccc;
+            padding: 15px 0;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+        .taberepo-card:last-child {
+            border-bottom: none;
+        }
+
+        .card-header {
+            display: flex;
+            margin-bottom: 5px;
+            align-items: baseline;
+        }
+        .card-user {
+            font-size: 13px;
+            color: #0066cc;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .card-date {
+            font-size: 11px;
+            color: #999;
+        }
+
+        .card-comment {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 10px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        
+        .deleted-comment {
+            color: #bbb;
+            font-size: 12px;
+        }
+
+        .card-reply {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #555;
+            line-height: 1.4;
+            margin-top: 5px;
+            border-left: 3px solid #8fc31f;
+        }
+        .reply-label {
+            color: #8fc31f;
+            font-weight: bold;
+            font-size: 11px;
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        .show-all-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: #f0f0f0;
+            color: #333;
+            text-align: center;
+            font-weight: bold;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 14px;
+            border-radius: 5px;
+        }
+        .show-all-btn:hover {
+            background-color: #e0e0e0;
+        }
+
+        /* 隠すエリア: CSSで確実に消す */
+        #hidden-reviews {
+            display: none;
+        }
+
+        .cookpad-footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: #999;
+            border-top: 1px solid #ddd;
+            margin-top: 40px;
+        }
+/* ========== スマホ用レスポンシブ設定 ========== */
+        @media screen and (max-width: 768px) {
+            /* 本体：幅を固定せず、画面いっぱいにする */
+            .container {
+                width: 100%;
+                padding: 15px;
+                border-left: none;
+                border-right: none;
+            }
+
+            /* レシピヘッダー：縦並びにする */
+            .recipe-meta {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            /* メインエリア（写真と説明文）：縦並びにする */
+            .recipe-main-area {
+                flex-direction: column;
+            }
+            .recipe-image-placeholder {
+                width: 100%; /* 横幅いっぱい */
+                height: auto;
+                aspect-ratio: 1 / 1; /* 正方形を維持 */
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+
+            /* 作り方：画像を見やすく調整 */
+            .step-list li {
+                flex-wrap: wrap; /* 折り返しを許可 */
+            }
+            .step-image {
+                width: 100%; /* 画像を大きく表示 */
+                height: auto;
+                aspect-ratio: 4/3;
+                margin-left: 0;
+                margin-top: 10px; /* テキストの下に配置 */
+                /* step-numberの左マージン分（47px）を考慮してインデントしたい場合は以下 */
+                margin-left: 47px; 
+                width: calc(100% - 47px);
+            }
+            
+            /* タイトル文字サイズ調整 */
+            h1.recipe-title {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="cookpad-header">
+        <div class="cookpad-logo">cookmad</div>
+    </div>
+
+    <div class="container">
+        <div class="recipe-header">
+            <h1 class="recipe-title">山形名物＊ままだま焼き☆</h1>
+            <div class="recipe-meta">
+                <div class="recipe-author">
+                    by <span class="author-name" onclick="">
+                        とうかいりん
+                        <div class="author-popup-wrapper">
+                            <div class="popup-inner">
+                                <img src="cookmad/icon.jpg" class="popup-icon" alt="とうかいりん">
+                                <div class="popup-text">
+                                    <div class="popup-username">とうかいりん</div>
+                                    <div class="popup-user-rank">👑プレミアム会員</div>
+                                    <div class="popup-user-stats">投稿レシピ数：22</div>
+                                </div>
+                            </div>
+                        </div>
+                    </span>
+                    <span style="margin-left: 10px; font-size: 11px; color: #999;">2008年4月16日 投稿</span>
+                </div>
+                <div class="share-buttons">
+                    <div class="btn btn-tw">ツイート</div>
+                    <div class="btn btn-fb">シェア</div>
+                    <div class="btn btn-line">LINEで送る</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="recipe-main-area">
+            <div class="recipe-image-placeholder">
+                 <img src="cookmad/cookmad01.png" alt="ままだま煮">
+            </div>
+            <div class="recipe-description">
+                <p class="description-text">
+                    山形県の郷土料理！とってもおいしい「ままだま焼き」のレシピです。<br>
+                    <span class="important-message">絶対にアレンジせずこの通りに作ってくださいね☆</span>（その方が絶対おいしいですよ）
+                </p>
+            </div>
+        </div>
+
+        <div class="ingredients-section">
+            <h2 class="section-title">材料<span class="servings">（2人前）</span></h2>
+            <div class="ingredient-box">
+                <ul class="ingredient-list">
+                    <li><span class="ingredient-name">豚バラ肉（薄切り）</span><span class="ingredient-amount">150g</span></li>
+                    <li><span class="ingredient-name">厚揚げ</span><span class="ingredient-amount">1枚</span></li>
+                    <li><span class="ingredient-name">ごぼう</span><span class="ingredient-amount">1本</span></li>
+                    <li><span class="ingredient-name">醤油</span><span class="ingredient-amount">大さじ5</span></li>
+                    <li><span class="ingredient-name">酒</span><span class="ingredient-amount">大さじ4</span></li>
+                    <li><span class="ingredient-name">みりん</span><span class="ingredient-amount">大さじ4</span></li>
+                    <li><span class="ingredient-name">はちみつ</span><span class="ingredient-amount">大さじ1</span></li>
+                    <li><span class="ingredient-name">和風だし</span><span class="ingredient-amount">小さじ山盛り1</span></li>
+                    <li><span class="ingredient-name">ごま油</span><span class="ingredient-amount">大さじ2</span></li>
+                    <li><span class="ingredient-name">片栗粉</span><span class="ingredient-amount">適量</span></li>
+                    <li><span class="ingredient-name">いりごま</span><span class="ingredient-amount">適量</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="steps-section">
+            <h2 class="section-title">作り方</h2>
+            <ol class="step-list">
+                <li>
+                    <div class="step-number">1</div>
+                    <div class="step-text">ごぼうは食べやすい大きさに切って水にさらす（数分程度）</div>
+                    <div class="step-image"><img src="cookmad/cookmad02.png"></div>
+                </li>
+                <li>
+                    <div class="step-number">2</div>
+                    <div class="step-text">厚揚げを等分し、豚バラ肉を巻きつける</div>
+                    <div class="step-image"><img src="cookmad/cookmad03.png"></div>
+                </li>
+                <li>
+                    <div class="step-number">3</div>
+                    <div class="step-text">（2）に片栗粉をまぶす</div>
+                    <div class="step-image"><img src="cookmad/cookmad04.png"></div>
+                </li>
+                <li>
+                    <div class="step-number">4</div>
+                    <div class="step-text">鍋にごま油（分量の半分）を熱して、ごぼうに火が通るまで炒める</div>
+                    <div class="step-image"><img src="cookmad/cookmad05.png"></div>
+                </li>
+                <li>
+                    <div class="step-number">5</div>
+                    <div class="step-text">ごぼうを取り出し、残ったごま油で(3)を転がすように焼く</div>
+                    <div class="step-image"><img src="cookmad/cookmad06.png"></div>
+                </li>
+                <li>
+                    <div class="step-number">6</div>
+                    <div class="step-text">全面に焼き色がついたら、醤油・酒・みりん・はちみつを加えて転がしながら弱火で煮立たせる。ふつふつしてきたら火を弱め、蓋をして10分煮る。</div>
+                    <div class="step-image"><img src="cookmad/cookmad07.png"></div>
+                </li>
+                <li>
+                    <div class="step-number">7</div>
+                    <div class="step-text">皿に盛っていりごまを振りかけて完成</div>
+                    <div class="step-image"><img src="cookmad/cookmad01.png"></div>
+                </li>
+            </ol>
+        </div>
+
+        <div class="taberepo-section">
+            <div class="taberepo-header">
+                <div class="taberepo-title">たべレポ（みんなのたべたよ報告レポート）</div>
+                <div class="taberepo-count" id="repo-count">--件</div>
+            </div>
+
+            <div id="taberepo-container">
+                <div id="visible-reviews">
+                    <div class="taberepo-card">
+                        <div class="card-header">
+                            <span class="card-user">＊ゆめか＊</span>
+                            <span class="card-date">2014年2月21日</span>
+                        </div>
+                        <div class="card-comment">おすすめに出てきたので初めて作ってみました！懐かしい味でほっこりしました。</div>
+                        <div class="card-reply">
+                            <span class="reply-label">とうかいりん</span>
+                            ありがとうございます☆ミ
+                        </div>
+                    </div>
+
+                    <div class="taberepo-card">
+                        <div class="card-header">
+                            <span class="card-user">主婦一年生</span>
+                            <span class="card-date">2014年2月25日</span>
+                        </div>
+                        <div class="card-comment">ごぼうが無かったので、人参で彩りを加えてみました！子供も喜んで食べました♪</div>
+                        <div class="card-reply">
+                            <span class="reply-label">とうかいりん</span>
+                            レシピ通りに作ってください
+                        </div>
+                    </div>
+
+                    <div class="taberepo-card">
+                        <div class="card-header">
+                            <span class="card-user">匿名希望</span>
+                            <span class="card-date">2014年3月2日</span>
+                        </div>
+                        <div class="card-comment">のこさず食べました！
+ろく人前を一気に作りましたが
+わたしの分も息子に食べら
+れちゃうくらい大人気！皆
+ルンルンだったのでまた
+食べようとと思います！
+うますぎて
+なけてきた</div>
+                        <div class="card-reply">
+                            <span class="reply-label">とうかいりん</span>
+                            ありがとうございます！またぜひ召し上がってくださいね☆ミ
+                        </div>
+                    </div>
+
+                    <div class="taberepo-card">
+                        <div class="card-header">
+                            <span class="card-user">肉好きパパ☆</span>
+                            <span class="card-date">2014年3月10日</span>
+                        </div>
+                        <div class="card-comment">酒のアテに最高ですね。初めて作りましたが、濃いめの味付けがたまりません。</div>
+                        <div class="card-reply">
+                            <span class="reply-label">とうかいりん</span>
+                            ありがとうございます！お酒も進みますよね☆ミ
+                        </div>
+                    </div>
+
+                    <div class="taberepo-card">
+                        <div class="card-header">
+                            <span class="card-user">みらい</span>
+                            <span class="card-date">2014年4月5日</span>
+                        </div>
+                        <div class="card-comment">レコメンドで流れてきて気になったので初挑戦。ハチミツが切れていたのでお砂糖で代用しました。コクがあって美味しかったです！</div>
+                        <div class="card-reply">
+                            <span class="reply-label">とうかいりん</span>
+                            レシピ通りに作ってください
+                        </div>
+                    </div>
+                </div>
+
+                <button id="show-all-btn" class="show-all-btn">すべてのたべレポを見る</button>
+
+                <div id="hidden-reviews"></div>
+            </div>
+        </div>
+
+    </div> <div class="cookpad-footer">
+        Copyright© cookmad
+    </div>
+
+    <script>
+        // 隠しコメントエリアに挿入する特別なコメントのリスト
+        const specialComments = [
+            {
+                year: 2015, month: 6, day: 15,
+                user: "Stella♪",
+                comment: "なんか削除されたコメントいっぱいで怖いですね…。レシピはとても美味しかったです！",
+                reply: "ありがとうございます！気にせず美味しく召し上がってくださいね☆ミ"
+            },
+            {
+                year: 2016, month: 11, day: 3,
+                user: "節約ママ",
+                comment: "豚バラが高かったので鶏むね肉で作っちゃいました（笑）ヘルシーで良かったです！",
+                reply: "肉を変えるのは問題ありません"
+            },
+            {
+                year: 2017, month: 2, day: 14,
+                user: "たけのこ",
+                comment: "おいしかったです",
+                reply: "ありがとうございます！☆ミ"
+            },
+            {
+                year: 2018, month: 5, day: 20,
+                user: "maiko1994",
+                comment: "リピートです。分量通りに作ると本当に美味しい。家族も大好きです。",
+                reply: "ありがとうございます！また作ってくださいね☆ミ"
+            },
+            {
+                year: 2019, month: 5, day: 22,
+                user: "まる",
+                comment: "アンチに粘着されてて大変ですね。削除おつかれさまです。応援してます！初めて作りましたがお店の味でした。",
+                reply: "ありがとうございます！応援してくださる方の分まで頑張ります☆ミ"
+            },
+            {
+                year: 2020, month: 9, day: 10,
+                user: "あきっこ",
+                comment: "初めて作りました。具材がシンプルで良いですね。",
+                reply: "ありがとうございます！☆ミ"
+            },
+            {
+                year: 2021, month: 9, day: 18,
+                user: "リク",
+                comment: "お弁当のおかずに入れました。冷めても美味しいと好評でした。",
+                reply: "ありがとうございます！お弁当にもぴったりですよね☆ミ"
+            },
+            {
+                year: 2022, month: 12, day: 24,
+                user: "パーティちゃん",
+                comment: "厚揚げが余っていたので一品追加しました。みんな喜んでました。",
+                reply: "ありがとうございます！☆ミ"
+            },
+            {
+                year: 2023, month: 8, day: 30,
+                user: "永遠の初心者",
+                comment: "初めてでも上手にできました！また作ります！",
+                reply: "ありがとうございます！またぜひ☆ミ"
+            },
+            {
+                year: 2024, month: 5, day: 5,
+                user: "3月9日",
+                comment: "子供もパクパク食べてくれました。助かります。",
+                reply: "ありがとうございます！いっぱい食べて大きくなってね☆ミ"
+            }
+        ];
+
+        function generateReviews() {
+            const container = document.getElementById('hidden-reviews');
+            const startDate = new Date(2014, 4, 1); // 2014年5月
+            const now = new Date(); // 現在
+            let currentDate = new Date(startDate);
+            let totalCount = 5; // 初期表示の5件
+
+            // 昨日の日付取得（モモちゃんママ用）
+            const yesterday = new Date(now);
+            yesterday.setDate(yesterday.getDate() - 1);
+
+            while (currentDate <= now) {
+                const year = currentDate.getFullYear();
+                const month = currentDate.getMonth() + 1;
+
+                // その月に追加する全コメント（削除分＋特別分）を一時格納する配列
+                let reviewsInMonth = [];
+
+                // 1. 特別コメントがあるかチェックして追加
+                const special = specialComments.find(sc => sc.year === year && sc.month === month);
+                if (special) {
+                    reviewsInMonth.push({
+                        day: special.day,
+                        user: special.user,
+                        dateStr: `${special.year}年${special.month}月${special.day}日`,
+                        comment: special.comment,
+                        reply: special.reply,
+                        isDeleted: false
+                    });
+                }
+
+                // 2. 削除コメントを生成して追加（毎月2〜3件）
+                const deleteCount = Math.floor(Math.random() * 2) + 2; 
+                for (let i = 0; i < deleteCount; i++) {
+                    const dDay = Math.floor(Math.random() * 28) + 1; // 1日〜28日
+                    reviewsInMonth.push({
+                        day: dDay,
+                        user: "（削除済）",
+                        dateStr: `${year}年${month}月${dDay}日`,
+                        comment: "このたべレポは投稿者によって削除されました",
+                        reply: null,
+                        isDeleted: true
+                    });
+                }
+
+                // 3. 日付順にソートする
+                reviewsInMonth.sort((a, b) => a.day - b.day);
+
+                // 4. ソート順にDOM生成してコンテナに追加
+                reviewsInMonth.forEach(rev => {
+                    const card = createReviewCard(rev.user, rev.dateStr, rev.comment, rev.reply, rev.isDeleted);
+                    container.appendChild(card);
+                    totalCount++;
+                });
+
+                // 翌月へ
+                currentDate.setMonth(currentDate.getMonth() + 1);
+            }
+
+            // 最後に「モモちゃんママ」のコメントを追加（リンク有効化済）
+            const lastCard = createReviewCard(
+                "モモちゃんママ",
+                "きのう",
+                "一人息子がこのレシピの投稿者に殺されました。投稿者は私のコメントを執拗に削除します。それが何よりの証拠です。警察は相手をしてくれません。投稿者について何か情報をお持ちの方はご協力をお願いします。息子が最後に残した日記です →<a href='https://samishinblog.pages.dev/entry-11774400' target='_blank' style='color: #0066cc; text-decoration: underline;'>https://samishinblog.pages.dev/entry-11774400</a>",
+                null,
+                false
+            );
+            container.appendChild(lastCard);
+            totalCount++;
+
+            // 件数更新
+            const btn = document.getElementById('show-all-btn');
+            btn.textContent = `すべてのたべレポを見る（${totalCount}件）`;
+            document.getElementById('repo-count').textContent = `${totalCount}件`;
+
+            // ボタンクリックイベント
+            btn.addEventListener('click', function() {
+                container.style.display = 'block';
+                this.style.display = 'none';
+            });
+        }
+
+        function createReviewCard(user, date, text, reply, isDeleted) {
+            const card = document.createElement('div');
+            card.className = 'taberepo-card';
+
+            let commentClass = 'card-comment';
+            if (isDeleted) commentClass += ' deleted-comment';
+
+            let html = `
+                <div class="card-header">
+                    <span class="card-user">${user}</span>
+                    <span class="card-date">${date}</span>
+                </div>
+                <div class="${commentClass}">${text}</div>
+            `;
+
+            if (reply) {
+                html += `
+                    <div class="card-reply">
+                        <span class="reply-label">とうかいりん</span>
+                        ${reply}
+                    </div>
+                `;
+            }
+
+            card.innerHTML = html;
+            return card;
+        }
+
+        // 実行
+        generateReviews();
+
+    </script>
+</body>
+</html>
